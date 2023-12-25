@@ -6,8 +6,10 @@ import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Process
 import android.provider.Settings
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
@@ -20,24 +22,41 @@ import java.util.concurrent.TimeUnit
 class MainActivity : AppCompatActivity() {
 //    private var intentService: Intent? = null
 //
-//    private fun getPermissionUsageStats() {
-//        if (!Settings.canDrawOverlays(this)) {
-//            val intent = Intent(
-//                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-//                Uri.parse("package:$packageName")
-//            )
-//            startActivity(intent)
-////                launcher.launch(intent)
-//        }
-//    }
 
+    private val requestPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                Log.i("Permission: ", "Granted")
+            } else {
+                Log.i("Permission: ", "Denied")
+            }
+        }
+
+    private fun getPermissionUsageStats() {
+        val appOps = getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
+        val mode = appOps.unsafeCheckOpNoThrow("android:get_usage_stats", Process.myUid(), packageName)
+        val isGranted = mode == AppOpsManager.MODE_ALLOWED
+        if (!isGranted) {
+            val intent = Intent(
+                Settings.ACTION_USAGE_ACCESS_SETTINGS,
+                Uri.parse("package:$packageName")
+            )
+            startActivity(intent)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        getPermissionUsageStats()
 
         val startButton = findViewById<Button>(R.id.startButton)
         val stopButton = findViewById<Button>(R.id.stopButton)
+
+        val getUsageStats = GetUsageStats(this)
+        getUsageStats.getUsageStats()
 
         startButton.setOnClickListener {
             if (Settings.canDrawOverlays(this)) {
@@ -53,9 +72,6 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
 //                launcher.launch(intent)
             }
-
-
         }
     }
-
 }
