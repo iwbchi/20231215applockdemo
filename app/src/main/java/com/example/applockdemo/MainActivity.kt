@@ -55,13 +55,10 @@ class MainActivity : AppCompatActivity() {
         val startButton = findViewById<Button>(R.id.startButton)
         val stopButton = findViewById<Button>(R.id.stopButton)
 
-        val getUsageStats = GetUsageStats(this)
-        getUsageStats.getUsageStats()
-
         startButton.setOnClickListener {
             if (Settings.canDrawOverlays(this)) {
                 val myWorkRequest = OneTimeWorkRequestBuilder<MyWorker>()
-                    .setInitialDelay(5, TimeUnit.SECONDS)
+//                    .setInitialDelay(5, TimeUnit.SECONDS)
                     .build()
                 WorkManager.getInstance(this).enqueue(myWorkRequest)
             } else {

@@ -29,11 +29,19 @@ class MyWorker(context: Context, parameters: WorkerParameters) :
         setForeground(createForegroundInfo("progress"))
 
 
+
 //      workerが作られている間通知が表示される
-        delay(5000L)
-        val intent = Intent(applicationContext, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        applicationContext.startActivity(intent)
+//        delay(5000L)
+        val getter = GetUsageStats(applicationContext)
+        for (usage in getter.getUsageStats()) {
+            val usageTime = usage.getTotalTimeInForeground()
+            if (usageTime != 0L) println(usage.packageName)
+//            println(usage.getTotalTimeInForeground())
+        }
+
+//        val intent = Intent(applicationContext, MainActivity::class.java)
+//        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+//        applicationContext.startActivity(intent)
         return Result.success()
     }
 
